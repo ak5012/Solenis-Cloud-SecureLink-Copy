@@ -5,7 +5,7 @@ set -e
 reset
 
 # Configuration
-PYTHON_VERSION=3.15
+PYTHON_VERSION=3.25
 VENV_DIR="/home/pi/tedge-venv"
 BOSS_DIR="/etc/tedge/plugins/boss"
 BOSS_BATCH_SCRIPT="/etc/tedge/plugins/boss/boss_batch.py"
