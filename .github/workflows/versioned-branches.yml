@@ -1,30 +1,30 @@
-name: Create Versioned Branches
+name: Version Files on Branch Change
 
 on:
   push:
-    branches:
-      - main
+    branches: # Triggers on all branches
+      - '**'
 
 permissions:
   contents: write
-  
+
 jobs:
-  version_branches:
+  version-files:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Set up Git
+      - name: Set up Git config
         run: |
-          git config --global user.name 'GitHub Actions'
-          git config --global user.email 'actions@github.com'
-
-      - name: Fetch all branches
-        run: git fetch --all
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Run versioning script
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: bash .github/scripts/version_branches.sh
+        run: bash .github/scripts/version_files.sh
+
+      - name: Push changes
+        run: |
+          git push
