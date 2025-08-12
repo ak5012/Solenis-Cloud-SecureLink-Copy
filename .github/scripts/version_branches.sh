@@ -1,29 +1,47 @@
 #!/bin/bash
-
 set -e
 
-# List of branches to version
-branches=("BOSS" "Cloud Sync" "GPAM")
+# Get changed files in the latest commit
+CHANGED_FILES=$(git diff-tree --no-commit-id --name-only -r HEAD)
 
-for branch in "${branches[@]}"; do
-  # Find latest versioned branch for this branch
-  latest_ver=$(git branch -r | grep "origin/${branch}-" | awk -F"${branch}-" '{print $2}' | sort -V | tail -n1)
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+ANY_NEW=false
 
-  if [[ -z "$latest_ver" ]]; then
-    new_ver="1.0"
-  else
-    # Increment minor version (you can change this logic)
-    major=$(echo $latest_ver | cut -d. -f1)
-    minor=$(echo $latest_ver | cut -d. -f2)
-    new_minor=$((minor+1))
-    new_ver="${major}.${new_minor}"
+for FILE in $CHANGED_FILES; do
+  # Only handle regular files (skip deleted and non-file changes)
+  if [ ! -f "$FILE" ]; then
+    continue
   fi
 
-  new_branch="${branch}-${new_ver}"
+  BASENAME=$(basename "$FILE")
+  DIRNAME=$(dirname "$FILE")
+  EXTENSION="${BASENAME##*.}"
+  FILENAME="${BASENAME%.*}"
 
-  # Create new branch from main
-  git checkout main
-  git pull
-  git checkout -b "$new_branch"
-  git push origin "$new_branch"
+  # Find highest version already existing
+  # Pattern: filename-1.x.ext
+  PATTERN="$DIRNAME/$FILENAME-[0-9]*.$EXTENSION"
+  HIGHEST=0
+  for EXISTING in $PATTERN; do
+    [[ ! -e $EXISTING ]] && continue
+    VERSION=$(echo "$EXISTING" | sed -E "s/.*$FILENAME-([0-9]+)\.$EXTENSION$/\1/")
+    [[ "$VERSION" =~ ^[0-9]+$ ]] || continue
+    if (( VERSION > HIGHEST )); then
+      HIGHEST=$VERSION
+    fi
+  done
+
+  NEXT=$((HIGHEST + 1))
+  VERSIONED_FILE="$DIRNAME/$FILENAME-$NEXT.$EXTENSION"
+
+  # Copy the changed file to new versioned file
+  cp "$FILE" "$VERSIONED_FILE"
+  git add "$VERSIONED_FILE"
+  ANY_NEW=true
 done
+
+if [ "$ANY_NEW" = true ]; then
+  git commit -m "Create new versioned file(s) on branch $BRANCH"
+else
+  echo "No new files to version."
+fi
