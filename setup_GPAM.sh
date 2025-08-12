@@ -5,7 +5,7 @@ set -e
 reset
 
 # Configuration
-PYTHON_VERSION=3.15
+PYTHON_VERSION=3.14
 VENV_DIR="/home/pi/tedge-venv"
 GPAM_LIVE_SCRIPT="/home/pi/gpam_live.py"
 GPAM_LIVE_CONFIG_JSON="/etc/tedge/plugins/config_gpam_live.json"
