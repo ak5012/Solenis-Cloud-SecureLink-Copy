@@ -19,7 +19,6 @@ for FILE in $CHANGED_FILES; do
   FILENAME="${BASENAME%.*}"
 
   # Find highest version already existing
-  # Pattern: filename-1.x.ext
   PATTERN="$DIRNAME/$FILENAME-[0-9]*.$EXTENSION"
   HIGHEST=0
   for EXISTING in $PATTERN; do
