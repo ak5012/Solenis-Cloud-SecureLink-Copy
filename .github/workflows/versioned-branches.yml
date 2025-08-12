@@ -23,7 +23,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Run versioning script
-        run: bash .github/scripts/version_files.sh
+        run: bash .github/scripts/version_branches.sh
 
       - name: Push changes
         run: |
