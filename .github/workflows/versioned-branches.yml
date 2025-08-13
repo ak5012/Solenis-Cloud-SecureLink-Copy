@@ -27,4 +27,5 @@ jobs:
 
       - name: Push changes
         run: |
-          git push put this git version
+          git push
+          git push --tags
