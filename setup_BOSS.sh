@@ -368,7 +368,7 @@ def publish_alarm(alarm_type, alarm_text, status, prefix):
         "severity": "critical",
         "source": { "id": prefix }
     }
-    cmd = ["tedge", "mqtt", "pub", "te/alarms", json.dumps(payload)]
+    cmd = ["tede", "mqtt", "pub", "te/alarms", json.dumps(payload)]
     subprocess.run(cmd, check=False)
 
 def is_host_reachable(ip):
