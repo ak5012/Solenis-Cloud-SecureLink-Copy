@@ -5,7 +5,7 @@ set -e
 reset
 
 # Configuration
-PYTHON_VERSION=3.50
+PYTHON_VERSION=4.35
 VENV_DIR="/home/pi/tedge-venv"
 CloudSync_DIR="/etc/tedge/plugins/cloudsync"
 CloudSync_SCRIPT="/etc/tedge/plugins/cloudsync/cloudsync_sync.py"
