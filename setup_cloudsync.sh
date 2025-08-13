@@ -24,7 +24,7 @@ sudo chown pi:tedge ${CloudSync_DIR}
 
 sudo apt update -y && sudo apt install tedge-log-plugin
 
-echo "=== Creating Python virtual environment ==="
+echo "=== Creating Python virtual environment111 ==="
 python${PYTHON_VERSION} -m venv "$VENV_DIR"
 source "$VENV_DIR/bin/activate"
 
