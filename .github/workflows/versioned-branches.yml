@@ -2,11 +2,23 @@ name: Version Files on Branch Change
 
 on:
   push:
-    branches: # Triggers on all branches
-      - '**'
+    # Only run on your 4 tracks; change names if needed
+    branches: [ main, BOSS, GPAM, CloudSync ]
+    # Only start the workflow when .py/.json (or the workflow itself) change
+    paths:
+      - "**/*.py"
+      - "**/*.json"
+      - ".github/workflows/versioned-branches.yml"
+      - ".github/scripts/**"
+  workflow_dispatch: {}   # allow manual run when you want
 
 permissions:
   contents: write
+
+# Avoid duplicate concurrent runs per branch
+concurrency:
+  group: version-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   version-files:
@@ -19,12 +31,45 @@ jobs:
 
       - name: Set up Git config
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      # Guard: if this was triggered manually (or by an edge case),
+      # still skip unless .py/.json actually changed.
+      - name: Detect Python/JSON changes
+        id: changed
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "push" ] && \
+             [ -n "${{ github.event.before }}" ] && \
+             [ "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ]; then
+            RANGE="${{ github.event.before }}...${{ github.sha }}"
+          else
+            RANGE="${{ github.sha }}~1..${{ github.sha }}"
+          fi
+          echo "Diff range: $RANGE"
+          git diff --name-only "$RANGE" > files.txt || true
+          cat files.txt
+          if grep -E '\.py$|\.json$' files.txt >/dev/null 2>&1; then
+            echo "should_release=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "should_release=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Run versioning script
+        if: steps.changed.outputs.should_release == 'true'
         run: bash .github/scripts/version_branches.sh
 
-      - name: Push changes
+      # If your script created commits or tags, push them up.
+      # Safe even if nothing to push.
+      - name: Push changes (commits and tags, if any)
+        if: steps.changed.outputs.should_release == 'true'
         run: |
-          git push
+          git push || true
+          git push --tags || true
+
+      - name: No relevant changes — skipping version bump
+        if: steps.changed.outputs.should_release != 'true'
+        run: echo "No .py or .json changes detected."
+
