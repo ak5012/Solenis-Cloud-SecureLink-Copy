@@ -5,7 +5,7 @@ set -e
 reset
 
 # Configuration
-PYTHON_VERSION=3.65
+PYTHON_VERSION=3.50
 VENV_DIR="/home/pi/tedge-venv"
 METADATA_SCRIPT="/home/pi/send_revpi_metadata.sh"
 
