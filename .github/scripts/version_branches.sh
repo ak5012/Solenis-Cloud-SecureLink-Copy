@@ -1,8 +1,8 @@
 #!/bin/bash
 set -e
 
-# Get changed files in the latest commit
-CHANGED_FILES=$(git diff-tree --no-commit-id --name-only -r HEAD)
+# Get changed files in the latest commit (only .py/.json)
+CHANGED_FILES=$(git diff-tree --no-commit-id --name-only -r HEAD | grep -E '\.(py|json)$' || true)
 
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
 ANY_NEW=false
