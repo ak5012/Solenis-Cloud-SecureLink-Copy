@@ -2,8 +2,11 @@ name: Version Files on Branch Change
 
 on:
   push:
-    branches: # Triggers on all branches
+    branches:
       - '**'
+    paths:
+      - '**/*.py'
+      - '**/*.json'
 
 permissions:
   contents: write
