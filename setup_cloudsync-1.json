@@ -1,0 +1,95 @@
+# --- Write Python script ---
+cat > "$CloudSync_CONFIG_JSON" << 'EOF'
+{
+  "MOXA_AO": {
+    "ip": "192.168.1.254",
+    "registers": {
+      "AO0": {
+        "register": 1025,
+        "label": "UT52A RSP Analog Signal",
+        "series": "Edge_SetPoint",
+        "min": 0,
+        "max": 100,
+        "resolution": 4096,
+        "units": "Percent"
+      }
+    }
+  },
+  "MOXA_AI": {
+    "ip": "192.168.1.253",
+    "registers": {
+      "AI0": {
+        "register": 0,
+        "label": "UT52A PV Rebroadcast Analog Signal",
+        "series": "Flow_PV",
+        "min": 0,
+        "max": 100,
+        "resolution": 65536,
+        "units": "Percent"
+      }
+    }
+  },
+  "MOXA_DIO": {
+    "ip": "192.168.1.252",
+    "coils": {
+      "DO0": {
+        "index": 0,
+        "label": "UT52A DI3 - Switch to LCL"
+      },
+      "DO1": {
+        "index": 1,
+        "label": "Beacon RED"
+      },
+      "DO2": {
+        "index": 2,
+        "label": "Beacon ORANGE"
+      },
+      "DO3": {
+        "index": 3,
+        "label": "Beacon GREEN"
+      },
+      "DO4": {
+        "index": 4,
+        "label": "Beacon Blue"
+      }
+    },
+    "discrete_inputs": {
+      "DI0": {
+        "index": 0,
+        "label": "PID Run",
+        "series": "PID_Run"
+      },
+      "DI1": {
+        "index": 1,
+        "label": "PID in RSP",
+        "series": "PID_SetPoint_Mode"
+      },
+      "DI2": {
+        "index": 2,
+        "label": ""
+      },
+      "DI3": {
+        "index": 3,
+        "label": ""
+      },
+      "DI4": {
+        "index": 4,
+        "label": ""
+      },
+      "DI5": {
+        "index": 5,
+        "label": ""
+      }
+    }
+  },
+  "cloud": {
+    "fragment": "OPTIX",
+    "series": "Cloud_Value",
+    "stale_timeout": 600,
+    "polling_timeout": 30
+  }
+}
+
+
+EOF
+
