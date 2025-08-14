@@ -95,3 +95,25 @@ cat > "$BOSS_BATCH_CONFIG_JSON" << 'EOF'
 }
 
 EOF
+
+echo "=== Installing Python Configuration JSON for BOSS Alarm Data ==="
+# --- Write Python script ---
+cat > "$BOSS_ALARM_CONFIG_JSON" << 'EOF'
+{
+  "notes": "Include Notes Here",
+  "plc_ip": "192.168.1.156",
+  "alarm_prefix": "boss_alarm",
+  "registers": {
+    "fault_00": {
+      "tag": "N13:0/0",
+      "alarm_text": "Emergency Stop"
+    },
+    "fault_01": {
+      "tag": "N13:0/1",
+      "alarm_text": "Low Recirc Pressure"
+    }
+  }
+}
+
+EOF
+
