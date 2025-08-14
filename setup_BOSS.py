@@ -1,5 +1,5 @@
 
-echo "=== Installing BOSS Batch Data Python Script ==="
+echo "=== Installing BOSS Batch Data Python Script ======"
 # --- Write Python script ---
 cat > "$BOSS_BATCH_SCRIPT" << EOF
 from pycomm3 import LogixDriver
