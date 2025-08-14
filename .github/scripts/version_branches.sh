@@ -1,51 +1,49 @@
 #!/bin/bash
 set -e
 
-# Only .py/.json that were Added/Copied/Modified/Renamed in the latest commit
-CHANGED_FILES=$(
-  git diff-tree --no-commit-id --name-only --diff-filter=ACMR -r HEAD \
-  | grep -E '\.(py|json)$' || true
-)
+# Get changed files in the latest commit (only .py/.json)
+CHANGED_FILES=$(git diff-tree --no-commit-id --name-only -r HEAD | grep -E '\.(py|json)$' || true)
 
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
 ANY_NEW=false
 
 for FILE in $CHANGED_FILES; do
-  # Skip if not a regular file (e.g., deleted)
-  [[ -f "$FILE" ]] || continue
+  # Only handle regular files (skip deleted and non-file changes)
+  if [ ! -f "$FILE" ]; then
+    continue
+  fi
 
   BASENAME=$(basename "$FILE")
   DIRNAME=$(dirname "$FILE")
   EXTENSION="${BASENAME##*.}"
-  NAME_NOEXT="${BASENAME%.*}"
+  FILENAME="${BASENAME%.*}"
 
-  # Skip files that are already versioned like name-12.py
-  if [[ "$NAME_NOEXT" =~ -[0-9]+$ ]]; then
-    continue
-  fi
-
-  # Find highest existing version
-  PATTERN="$DIRNAME/$NAME_NOEXT-[0-9]*.$EXTENSION"
+  # Find highest version already existing
+  PATTERN="$DIRNAME/$FILENAME-[0-9]*.$EXTENSION"
   HIGHEST=0
   for EXISTING in $PATTERN; do
-    [[ ! -e "$EXISTING" ]] && continue
-    VERSION=$(echo "$EXISTING" | sed -E "s#^.*/${NAME_NOEXT}-([0-9]+)\.${EXTENSION}\$#\1#")
+    [[ ! -e $EXISTING ]] && continue
+    VERSION=$(echo "$EXISTING" | sed -E "s/.*$FILENAME-([0-9]+)\.$EXTENSION$/\1/")
     [[ "$VERSION" =~ ^[0-9]+$ ]] || continue
-    (( VERSION > HIGHEST )) && HIGHEST=$VERSION
+    if (( VERSION > HIGHEST )); then
+      HIGHEST=$VERSION
+    fi
   done
 
   NEXT=$((HIGHEST + 1))
-  VERSIONED_FILE="$DIRNAME/$NAME_NOEXT-$NEXT.$EXTENSION"
+  VERSIONED_FILE="$DIRNAME/$FILENAME-$NEXT.$EXTENSION"
 
+  # Copy the changed file to new versioned file
   cp "$FILE" "$VERSIONED_FILE"
   git add "$VERSIONED_FILE"
   ANY_NEW=true
 done
 
 if [ "$ANY_NEW" = true ]; then
-  git commit -m "Version .py/.json on branch $BRANCH"
+  git commit -m "Create new versioned file(s) on branch $BRANCH"
 else
-  echo "No new .py/.json files to version."
+  echo "No new files to version."
 fi
+
 
 
